@@ -1,0 +1,52 @@
+const { calcIMC, calcTMB } = require('../../public/scripts/scripts.cjs');
+const { calcTabelaIMC } = require('../../public/scripts/scripts_PT.cjs');
+
+function calcTMBComMetas(peso, idade, altura, sexo, objetivo) {
+  let tmb = calcTMB(peso, idade, altura, sexo);
+
+  switch (objetivo) {
+    case 'manter': // Manter peso
+      return tmb;
+    case 'perder': // Perder peso com déficit de 500 calorias
+      return tmb - 500;
+    case 'ganhar': // Ganho de massa com excesso de 500 calorias
+      return tmb + 500;
+    default: // Caso nenhum objetivo seja selecionado, "manter" será o padrão
+      return tmb;
+  }
+}
+
+describe('calcIMC', () => {
+  test('aplicação possui IMC', () => {
+    const imc = calcIMC(70, 175);
+    expect(imc).toBeDefined();
+  });
+
+  test('aplicação retorna o cálculo correto do IMC', () => {
+    const imc = calcIMC(70, 175);
+    expect(imc).toBe('22.86');
+  });
+
+  test('aplicação não permite valores nulos ou inválidos', () => {
+    const imc = calcIMC(-70, 175); // Peso negativo não é permitido
+    expect(imc).toBeNull();
+  });
+});
+
+describe('calcTMB', () => {
+  test('aplicação retorna o resultado do cálculo do TMB', () => {
+    const tmb = calcTMB(70, 21, 171, 'Masculino');
+    expect(tmb).toBeDefined();
+  });
+
+  test('aplicação retorna o cálculo do TMB com metas', () => {
+    const tmbManter = calcTMBComMetas(70, 21, 171, 'Masculino', 'manter');
+    expect(tmbManter).toBeCloseTo(1729.25);
+
+    const tmbPerder = calcTMBComMetas(70, 21, 171, 'Masculino', 'perder');
+    expect(tmbPerder).toBeCloseTo(1229.25);
+
+    const tmbGanhar = calcTMBComMetas(70, 21, 171, 'Masculino', 'ganhar');
+    expect(tmbGanhar).toBeCloseTo(2229.25);
+  });
+});
